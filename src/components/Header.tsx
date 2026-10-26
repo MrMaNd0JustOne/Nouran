@@ -1,5 +1,6 @@
 import React from 'react';
-import { Settings, Moon, Sun, BookOpen } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Settings, Moon, Sun } from 'lucide-react';
 
 interface HeaderProps {
   darkMode: boolean;
@@ -16,8 +17,8 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="sticky top-0 z-40 bg-white/90 dark:bg-[#0c1411]/90 backdrop-blur-md border-b border-emerald-900/10 dark:border-emerald-500/10 px-4 py-3 transition-colors">
       <div className="max-w-2xl mx-auto flex items-center justify-between">
         {/* App Branding */}
-        <div className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-800 text-white flex items-center justify-center shadow-md shadow-emerald-900/20 ring-2 ring-emerald-500/20">
+        <Link to="/" className="flex items-center gap-2.5 focus:outline-none group">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-800 text-white flex items-center justify-center shadow-md shadow-emerald-900/20 ring-2 ring-emerald-500/20 group-hover:scale-105 transition-transform">
             <span className="font-quran text-2xl font-bold leading-none select-none">ن</span>
           </div>
           <div>
@@ -33,7 +34,7 @@ export const Header: React.FC<HeaderProps> = ({
               باحث آيات القرآن الكريم ـ نور العلم و نور الإيمان
             </p>
           </div>
-        </div>
+        </Link>
 
         {/* Header Actions */}
         <div className="flex items-center gap-2 shrink-0">

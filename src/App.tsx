@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { ActiveTab, Ayah, Bookmark, LastRead, SearchMatchAyah, SurahMeta } from './types/quran';
 import { CityOption } from './types/prayer';
 import { getSurahs } from './services/quranApi';
@@ -118,10 +119,28 @@ export default function App() {
     isSleepDone,
   });
 
-  // App Navigation
-  const [activeTab, setActiveTab] = useState<ActiveTab>('search');
+  // Router location & navigation (HashRouter)
+  const routerLocation = useLocation();
+  const navigate = useNavigate();
+
+  const getActiveTabFromPath = (pathname: string): ActiveTab => {
+    if (pathname.startsWith('/mushaf')) return 'mushaf';
+    if (pathname.startsWith('/athkar')) return 'athkar';
+    if (pathname.startsWith('/wird')) return 'wird';
+    if (pathname.startsWith('/prayer-times')) return 'prayer_times';
+    return 'search';
+  };
+
+  const activeTab: ActiveTab = getActiveTabFromPath(routerLocation.pathname);
+
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [activeAthkarCategory, setActiveAthkarCategory] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (activeTab !== 'athkar') {
+      setActiveAthkarCategory(null);
+    }
+  }, [activeTab]);
 
   // Mushaf Reading Mode state
   const [activeSurahNumber, setActiveSurahNumber] = useState<number | null>(null);
@@ -230,24 +249,24 @@ export default function App() {
 
   // Open in Mushaf from Search or Daily Ayah
   const handleOpenInMushaf = (surahNumber: number, ayahNumber: number, page?: number) => {
-    setActiveTab('mushaf');
     setActivePageNumber(page || null);
     setActiveSurahNumber(surahNumber);
     setActiveAyahNumber(ayahNumber);
+    navigate('/mushaf');
   };
 
   // Start reading from Daily Wird
   const handleStartReadingWird = (pageNumber: number) => {
-    setActiveTab('mushaf');
     setActiveSurahNumber(null);
     setActiveAyahNumber(null);
     setActivePageNumber(pageNumber);
+    navigate('/mushaf');
   };
 
   // Navigate to Athkar category from Home recommendation
   const handleOpenAthkarCategoryFromHome = (categoryId: string) => {
     setActiveAthkarCategory(categoryId);
-    setActiveTab('athkar');
+    navigate('/athkar');
   };
 
   // Bookmarking helpers
@@ -380,127 +399,146 @@ export default function App() {
         onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
-      {/* Main View Router */}
+      {/* Main View Router (HashRouter) */}
       <main className="container mx-auto">
-        {activeTab === 'search' && (
-          <HomeView
-            query={query}
-            setQuery={setQuery}
-            isSearching={isSearching}
-            error={searchError}
-            results={searchResults}
-            topMatch={topMatch}
-            hasSearched={hasSearched}
-            visibleCount={visibleCount}
-            executeSearch={executeSearch}
-            loadMore={loadMore}
-            clearResults={clearResults}
-            history={searchHistory}
-            onClearHistory={() => setSearchHistory([])}
-            onOpenTafsir={handleOpenTafsirFromMatch}
-            onPlayAudio={handlePlayAudioFromMatch}
-            onPlayDailyAudio={handlePlayDailyAudio}
-            playingAyahNumber={playingState?.ayah.number}
-            onOpenInMushaf={handleOpenInMushaf}
-            onToggleBookmark={handleToggleBookmarkFromMatch}
-            bookmarkedAyahIds={bookmarkedAyahIds}
-            currentPrayerId={currentPrayer?.id}
-            onOpenAthkarCategory={handleOpenAthkarCategoryFromHome}
-            isMorningDone={isMorningDone}
-            isEveningDone={isEveningDone}
-            isSleepDone={isSleepDone}
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <HomeView
+                query={query}
+                setQuery={setQuery}
+                isSearching={isSearching}
+                error={searchError}
+                results={searchResults}
+                topMatch={topMatch}
+                hasSearched={hasSearched}
+                visibleCount={visibleCount}
+                executeSearch={executeSearch}
+                loadMore={loadMore}
+                clearResults={clearResults}
+                history={searchHistory}
+                onClearHistory={() => setSearchHistory([])}
+                onOpenTafsir={handleOpenTafsirFromMatch}
+                onPlayAudio={handlePlayAudioFromMatch}
+                onPlayDailyAudio={handlePlayDailyAudio}
+                playingAyahNumber={playingState?.ayah.number}
+                onOpenInMushaf={handleOpenInMushaf}
+                onToggleBookmark={handleToggleBookmarkFromMatch}
+                bookmarkedAyahIds={bookmarkedAyahIds}
+                currentPrayerId={currentPrayer?.id}
+                onOpenAthkarCategory={handleOpenAthkarCategoryFromHome}
+                isMorningDone={isMorningDone}
+                isEveningDone={isEveningDone}
+                isSleepDone={isSleepDone}
+              />
+            }
           />
-        )}
 
-        {activeTab === 'mushaf' && (
-          <MushafView
-            surahs={surahs}
-            activeSurahNumber={activeSurahNumber}
-            activeAyahNumber={activeAyahNumber}
-            activePageNumber={activePageNumber}
-            onSelectSurah={(surahNum, ayahNum) => {
-              setActiveSurahNumber(surahNum);
-              setActiveAyahNumber(ayahNum || null);
-              setActivePageNumber(null);
-            }}
-            onSelectPage={(page) => {
-              setActivePageNumber(page);
-              setActiveSurahNumber(null);
-              setActiveAyahNumber(null);
-              // Track wird completion if reading through target
-              recordPageRead(page);
-            }}
-            onClearActiveReading={() => {
-              setActiveSurahNumber(null);
-              setActiveAyahNumber(null);
-              setActivePageNumber(null);
-            }}
-            lastRead={lastRead}
-            onSetLastRead={setLastRead}
-            bookmarks={bookmarks}
-            onToggleBookmark={(b) => {
-              const newBm: Bookmark = {
-                ...b,
-                id: Date.now().toString(),
-                timestamp: Date.now(),
-              };
-              setBookmarks(prev => [newBm, ...prev]);
-            }}
-            onRemoveBookmark={(id) => setBookmarks(prev => prev.filter(b => b.id !== id))}
-            onClearBookmarks={() => setBookmarks([])}
-            onOpenAyahMenu={handleAyahMenuOpen}
-            onPlaySurahAudio={handlePlaySurahAudio}
-            isPlaying={isPlaying}
-            playingAyahNumber={playingState?.ayah.number}
-            fontSize={fontSize}
-            onIncreaseFontSize={() => setFontSize(prev => Math.min(38, prev + 2))}
-            onDecreaseFontSize={() => setFontSize(prev => Math.max(18, prev - 2))}
+          <Route
+            path="/mushaf"
+            element={
+              <MushafView
+                surahs={surahs}
+                activeSurahNumber={activeSurahNumber}
+                activeAyahNumber={activeAyahNumber}
+                activePageNumber={activePageNumber}
+                onSelectSurah={(surahNum, ayahNum) => {
+                  setActiveSurahNumber(surahNum);
+                  setActiveAyahNumber(ayahNum || null);
+                  setActivePageNumber(null);
+                }}
+                onSelectPage={(page) => {
+                  setActivePageNumber(page);
+                  setActiveSurahNumber(null);
+                  setActiveAyahNumber(null);
+                  // Track wird completion if reading through target
+                  recordPageRead(page);
+                }}
+                onClearActiveReading={() => {
+                  setActiveSurahNumber(null);
+                  setActiveAyahNumber(null);
+                  setActivePageNumber(null);
+                }}
+                lastRead={lastRead}
+                onSetLastRead={setLastRead}
+                bookmarks={bookmarks}
+                onToggleBookmark={(b) => {
+                  const newBm: Bookmark = {
+                    ...b,
+                    id: Date.now().toString(),
+                    timestamp: Date.now(),
+                  };
+                  setBookmarks(prev => [newBm, ...prev]);
+                }}
+                onRemoveBookmark={(id) => setBookmarks(prev => prev.filter(b => b.id !== id))}
+                onClearBookmarks={() => setBookmarks([])}
+                onOpenAyahMenu={handleAyahMenuOpen}
+                onPlaySurahAudio={handlePlaySurahAudio}
+                isPlaying={isPlaying}
+                playingAyahNumber={playingState?.ayah.number}
+                fontSize={fontSize}
+                onIncreaseFontSize={() => setFontSize(prev => Math.min(38, prev + 2))}
+                onDecreaseFontSize={() => setFontSize(prev => Math.max(18, prev - 2))}
+              />
+            }
           />
-        )}
 
-        {activeTab === 'athkar' && (
-          <AthkarView
-            getRemaining={getRemaining}
-            isDhikrCompleted={isDhikrCompleted}
-            onTapDhikr={decrementCount}
-            onResetCategory={resetCategory}
-            initialCategoryId={activeAthkarCategory}
+          <Route
+            path="/athkar"
+            element={
+              <AthkarView
+                getRemaining={getRemaining}
+                isDhikrCompleted={isDhikrCompleted}
+                onTapDhikr={decrementCount}
+                onResetCategory={resetCategory}
+                initialCategoryId={activeAthkarCategory}
+              />
+            }
           />
-        )}
 
-        {activeTab === 'wird' && (
-          <WirdView
-            plan={plan}
-            progress={wirdProgress}
-            checklist={checklist}
-            todayWirdCalc={todayWirdCalc}
-            onConfigurePlan={configurePlan}
-            onMarkCompleted={markTodayAsCompleted}
-            onRedistribute={redistributeRemaining}
-            onStartNewKhatmah={startNewKhatmah}
-            onToggleChecklist={toggleChecklistItem}
-            onStartReading={handleStartReadingWird}
-            onExportBackup={handleExportBackup}
-            onImportBackup={handleImportBackup}
+          <Route
+            path="/wird"
+            element={
+              <WirdView
+                plan={plan}
+                progress={wirdProgress}
+                checklist={checklist}
+                todayWirdCalc={todayWirdCalc}
+                onConfigurePlan={configurePlan}
+                onMarkCompleted={markTodayAsCompleted}
+                onRedistribute={redistributeRemaining}
+                onStartNewKhatmah={startNewKhatmah}
+                onToggleChecklist={toggleChecklistItem}
+                onStartReading={handleStartReadingWird}
+                onExportBackup={handleExportBackup}
+                onImportBackup={handleImportBackup}
+              />
+            }
           />
-        )}
 
-        {activeTab === 'prayer_times' && (
-          <PrayerTimesView
-            location={location}
-            onSetLocation={setManualLocation}
-            onRequestGeolocation={requestLocation}
-            isLocating={isLocating}
-            permissionStatus={permissionStatus}
-            methodId={prayerMethodId}
-            school={prayerSchool}
-            notificationsEnabled={notificationsEnabled}
-            onToggleNotifications={() => setNotificationsEnabled(prev => !prev)}
-            onOpenSettings={() => setIsSettingsOpen(true)}
-            reminderOffsetMinutes={prayerReminderOffset}
-            onSelectReminderOffset={setPrayerReminderOffset}
+          <Route
+            path="/prayer-times"
+            element={
+              <PrayerTimesView
+                location={location}
+                onSetLocation={setManualLocation}
+                onRequestGeolocation={requestLocation}
+                isLocating={isLocating}
+                permissionStatus={permissionStatus}
+                methodId={prayerMethodId}
+                school={prayerSchool}
+                notificationsEnabled={notificationsEnabled}
+                onToggleNotifications={() => setNotificationsEnabled(prev => !prev)}
+                onOpenSettings={() => setIsSettingsOpen(true)}
+                reminderOffsetMinutes={prayerReminderOffset}
+                onSelectReminderOffset={setPrayerReminderOffset}
+              />
+            }
           />
-        )}
+
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </main>
 
       {/* Floating Audio Player Bar */}
@@ -626,11 +664,10 @@ export default function App() {
         currentCityName={location.cityName}
       />
 
-      {/* Bottom Navigation (5 tabs) */}
+      {/* Bottom Navigation (5 tabs via HashRouter) */}
       <BottomNav
         activeTab={activeTab}
         onTabChange={(tab) => {
-          setActiveTab(tab);
           if (tab !== 'athkar') {
             setActiveAthkarCategory(null);
           }
