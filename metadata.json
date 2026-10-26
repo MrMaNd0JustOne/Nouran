@@ -1,0 +1,6 @@
+{
+  "name": "نوران - باحث القرآن والمصحف الشريف",
+  "description": "تطبيق إسلامي شامل يبحث عن الآيات بأسلوب ذكي كشازام القرآن مع التفسير الميسر، التلاوات الصوتية، وتصفح المصحف بالسور والصفحات.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
