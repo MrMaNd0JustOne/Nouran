@@ -1,17 +1,20 @@
 const CACHE_NAME = 'noor-v1';
 
-self.addEventListener('install', (event) => {
+  self.addEventListener('install', (event) => {
   const scopeUrl = self.registration.scope;
   const precacheUrls = [
     scopeUrl,
     new URL('./manifest.webmanifest', scopeUrl).href,
-    new URL('./icon.svg', scopeUrl).href,
+    new URL('./icon-192.png', scopeUrl).href,
+    new URL('./icon-512.png', scopeUrl).href,
   ];
 
   event.waitUntil(
     caches
       .open(CACHE_NAME)
-      .then((cache) => cache.addAll(precacheUrls))
+      .then((cache) =>
+        Promise.allSettled(precacheUrls.map((u) => cache.add(u)))
+      )
       .then(() => self.skipWaiting())
   );
 });
