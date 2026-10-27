@@ -1,4 +1,4 @@
-const CACHE_NAME = 'noor-v1';
+const CACHE_NAME = 'noor-v2';
 
   self.addEventListener('install', (event) => {
   const scopeUrl = self.registration.scope;
