@@ -32,6 +32,7 @@ import {
   triggerPrayerNotification,
 } from '../../services/prayerApi';
 import { toArabicDigits } from '../../utils/arabicUtils';
+import { InstallPrompt, useSwUpdate } from '../InstallPrompt';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -104,6 +105,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'general' | 'prayer' | 'wird' | 'about'>('general');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const { updateAvailable, applyUpdate } = useSwUpdate();
 
   if (!isOpen) return null;
 
@@ -239,8 +241,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
         {/* Content Body */}
         <div className="p-5 sm:p-6 overflow-y-auto space-y-6">
+          {updateAvailable && (
+            <button
+              type="button"
+              onClick={applyUpdate}
+              className="w-full p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/50 hover:bg-amber-100 dark:hover:bg-amber-900/50 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs"
+            >
+              <RotateCcw className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+              <span>يوجد تحديث، اضغط للتحديث</span>
+            </button>
+          )}
+
           {activeTab === 'general' && (
             <>
+              <InstallPrompt />
+
               {/* Appearance Mode */}
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">

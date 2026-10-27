@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#064e3b" />
+  <circle cx="256" cy="256" r="196" fill="none" stroke="#d97706" stroke-opacity="0.35" stroke-width="6" />
+  <!-- Golden Crescent -->
+  <path
+    d="M286 118c-38.6 0-70 31.4-70 70 0 38.6 31.4 70 70 70 15.8 0 30.4-5.2 42.1-14.1-9.6 18.8-29.1 31.6-51.6 31.6-32.1 0-58.1-26-58.1-58.1s26-58.1 58.1-58.1c11.2 0 21.7 3.2 30.6 8.7-6.6-3-13.7-10-21.1-10z"
+    fill="#fbbf24"
+  />
+  <path
+    d="M276 112a64 64 0 1 0 54 98 52 52 0 1 1-54-98z"
+    fill="#fbbf24"
+  />
+  <circle cx="292" cy="156" r="8" fill="#fde68a" />
+  <!-- Open Golden Mushaf -->
+  <g fill="none" stroke="#fbbf24" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M256 266c-32-18-76-22-116-14v112c40-8 84-4 116 14 32-18 76-22 116-14V252c-40-8-84-4-116 14z" fill="#065f46" />
+    <path d="M256 266v112" />
+    <path d="M168 286c24-4 50-2 70 8" stroke-width="7" stroke="#fde68a" />
+    <path d="M168 314c24-4 50-2 70 8" stroke-width="7" stroke="#fde68a" />
+    <path d="M168 342c24-4 50-2 70 8" stroke-width="7" stroke="#fde68a" />
+    <path d="M344 286c-24-4-50-2-70 8" stroke-width="7" stroke="#fde68a" />
+    <path d="M344 314c-24-4-50-2-70 8" stroke-width="7" stroke="#fde68a" />
+    <path d="M344 342c-24-4-50-2-70 8" stroke-width="7" stroke="#fde68a" />
+    <path d="M216 392l40-14 40 14" stroke-width="10" />
+  </g>
+</svg>
